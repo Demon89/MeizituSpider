@@ -1,6 +1,7 @@
 # _*_coding: utf-8_*_
 import os
 import asyncio
+from random import randint
 from functools import wraps
 from time import perf_counter
 
@@ -32,7 +33,7 @@ def timer(func):
         result = func(*args, **kwargs)
         end_time = perf_counter()
         cls_name = func.__name__
-        print('{cls_name} spend time: {time:.5f}'.format(cls_name=cls_name, time=end_time - start_time))
+        print('{cls_name} spend time: {time:.8f}'.format(cls_name=cls_name, time=end_time - start_time))
         return result
     return wrapper
 
@@ -75,6 +76,8 @@ class MeiZiTuDownload:
         item_content = await self.get_html_content(item)
         selector = Selector(text=item_content)
         dir_name = selector.css('#maincontent div.metaRight h2 a::text').extract_first()
+        if not dir_name:
+            dir_name = ''.join(chr(randint(97, 122)) for _ in range(1, 10))
         image_urls = selector.css('#picture p img::attr(src)').extract()
         'ok' if os.path.exists(dir_name) else os.mkdir(dir_name)
         for image_url in image_urls:
@@ -105,7 +108,7 @@ if __name__ == "__main__":
     start = perf_counter()
     download = MeiZiTuDownload(genre='legs')
     loop = asyncio.get_event_loop()
-    to_do = [download(num) for num in range(1, 3)]
+    to_do = [download(num) for num in range(1, 6)]
     wait_future = asyncio.wait(to_do)
     resp, _ = loop.run_until_complete(wait_future)
     loop.close()
