@@ -79,6 +79,8 @@ class MeiZiTuDownload:
         if not dir_name:
             dir_name = ''.join(chr(randint(97, 122)) for _ in range(1, 10))
         image_urls = selector.css('#picture p img::attr(src)').extract()
+        if not image_urls:
+            image_urls = selector.css('.postContent p img::attr(src)').extract()
         'ok' if os.path.exists(dir_name) else os.mkdir(dir_name)
         for image_url in image_urls:
             image_name = image_url.rsplit('/', 1)[-1]
@@ -106,9 +108,9 @@ class MeiZiTuDownload:
 
 if __name__ == "__main__":
     start = perf_counter()
-    download = MeiZiTuDownload(genre='legs')
+    download = MeiZiTuDownload(genre='fuli')
     loop = asyncio.get_event_loop()
-    to_do = [download(num) for num in range(1, 6)]
+    to_do = [download(num) for num in range(1, 4)]
     wait_future = asyncio.wait(to_do)
     resp, _ = loop.run_until_complete(wait_future)
     loop.close()
